@@ -1,0 +1,68 @@
+name: Build & Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Build static export
+        run: npm run build
+        working-directory: frontend
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+        working-directory: frontend
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+        working-directory: frontend
+
+      - name: Build Debug APK
+        run: android/gradlew -p android assembleDebug
+        working-directory: frontend
+
+      - name: Rename APK
+        run: |
+          VERSION=${{ github.ref_name }}
+          cp frontend/android/app/build/outputs/apk/debug/app-debug.apk "Campus_Connect_${VERSION}.apk"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Campus_Connect_*.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

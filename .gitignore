@@ -1,0 +1,89 @@
+# =========================
+# Environment & Secrets
+# =========================
+.env
+.env.local
+.env.production
+.env.*.local
+!.env.example
+
+# =========================
+# Rust / Backend
+# =========================
+backend/target/
+**/*.rs.bk
+*.pdb
+
+# =========================
+# Node / Frontend
+# =========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+frontend/.vercel/
+
+# =========================
+# Capacitor / Android
+# =========================
+frontend/android/app/build/
+frontend/android/.gradle/
+frontend/android/build/
+frontend/android/app/release/
+frontend/android/app/src/main/assets/public/
+frontend/android/local.properties
+*.apk
+*.aab
+
+# =========================
+# Signing & Keys
+# =========================
+*.keystore
+*.jks
+signing.properties
+key.properties
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# =========================
+# Docker
+# =========================
+docker-data/
+*.log
+
+# =========================
+# Testing / Coverage
+# =========================
+coverage/
+*.lcov
+tarpaulin-report.html
+
+# =========================
+# Build artifacts
+# =========================
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# =========================
+# Gemini / Agent
+# =========================
+.gemini/
