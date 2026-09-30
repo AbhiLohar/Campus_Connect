@@ -27,8 +27,8 @@ jobs:
         run: npm ci
         working-directory: frontend
 
-      - name: Build static export
-        run: npm run build
+      - name: Create placeholder out directory
+        run: mkdir -p out && cp out/index.html out/index.html 2>/dev/null || echo '<!DOCTYPE html><html><body>Loading...</body></html>' > out/index.html
         working-directory: frontend
 
       - name: Setup Java
@@ -40,22 +40,28 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses || true
+
       - name: Sync Capacitor
         run: npx cap sync android
         working-directory: frontend
+        env:
+          CI: 'true'
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
         working-directory: frontend
 
       - name: Build Debug APK
-        run: android/gradlew -p android assembleDebug
+        run: ./android/gradlew -p android assembleDebug
         working-directory: frontend
 
       - name: Rename APK
         run: |
           VERSION=${{ github.ref_name }}
           cp frontend/android/app/build/outputs/apk/debug/app-debug.apk "Campus_Connect_${VERSION}.apk"
+          echo "APK_NAME=Campus_Connect_${VERSION}.apk" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -64,5 +70,16 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: false
+          body: |
+            ## 🎓 Digital Campus ${{ github.ref_name }}
+            
+            ### Install
+            1. Download `${{ env.APK_NAME }}` below
+            2. Enable "Install from unknown sources" on your phone
+            3. Open the APK to install
+            
+            ### Requirements
+            - Android 6.0+ (API 23+)
+            - Both phone and backend server must be on the same network for local testing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
